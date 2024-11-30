@@ -1,122 +1,86 @@
-/*
- * See documentation at https://nRF24.github.io/RF24
- * See License information at root directory of this library
- * Author: Brendan Doherty (2bndy5)
- */
-
-
-
 #include "Wire.h"
 #include "MPU6050_tockn.h"
+#include "RF24.h"
+
+#include "data.cpp"
 
 MPU6050 mpu6050(Wire);
-
-#include "RF24.h"
 
 #define CE_PIN D4
 #define CSN_PIN D3
 
 RF24 radio(CE_PIN, CSN_PIN);
 
-uint8_t receive[8] = {'a', 's','d', 'f','g', 'h','j', 'k'};
-
-uint8_t send[4] = {'a','s','d','f'};
+uint8_t send[24] = {'a', 's', 'd', 'f', 'g', 'h', 'j', 'k'};
+uint8_t receive[4];
 
 uint8_t PlaneAdress[6] = "Plane";
 uint8_t GroundAdress[6] = "GStat";
 
-void setup()
-{
+ToSend sendStruct;
 
+ToReceive receiveStruct;
+
+
+
+void setup() {
   Serial.begin(9600);
 
-  // initialize the transceiver on the SPI bus
-  while(!radio.begin())
-  {
-    Serial.println(F("radio hardware is not responding!!"));
+  while (!radio.begin()) {
+    Serial.println(F("Radio hardware is not responding!"));
     delay(1000);
-    
   }
 
-  // Set the PA Level low to try preventing power supply related problems
-  // because these examples are likely run with nodes in close proximity to
-  // each other.
-  radio.setPALevel(RF24_PA_LOW); // RF24_PA_MAX is default.
+  radio.setPALevel(RF24_PA_LOW);
+  radio.setChannel(108);
+  radio.setDataRate(RF24_250KBPS);
 
-  radio.setPayloadSize(sizeof(receive));
+  radio.setPayloadSize(24);
 
-  //comm between plane -> ground
   radio.openWritingPipe(PlaneAdress);
-
-
-
- //comm between ground -> plane
-  radio.openReadingPipe(1, GroundAdress); // using pipe 1
-
-
-
-  radio.startListening(); // put radio in RX mode
-  
-
+  radio.openReadingPipe(1, GroundAdress);
+  radio.startListening();
 
   Wire.begin();
   mpu6050.begin();
   mpu6050.calcGyroOffsets(true);
-
-} 
+}
 
 unsigned long timer = 0;
 
-void loop()
-{
-
-  // This device is a RX node
+void loop() {
   uint8_t pipe;
-  if (radio.available(&pipe))
-  {           
-         
-                  // is there a payload? get the pipe number that received it
-    uint8_t bytes = radio.getPayloadSize(); // get the size of the payload
+  if (radio.available(&pipe)) {
+    radio.read(&receive, sizeof(receive));
+    Serial.println(F("Received: "));
+    for (unsigned int i = 0; i < sizeof(receive); i += 2) {
+      short value;
+      if(i == 0){
+        receiveStruct.stick.x = value;
+      }
+      else if(i == 2){
+        receiveStruct.stick.y = value;
+      }
+      memcpy(&value, &receive[i], sizeof(short));
+      Serial.println(value);
+    }
 
-    
-    radio.read(&receive, bytes);            // fetch payload from FIFO
-    Serial.print(F("Received "));
-    Serial.print(bytes); // print the size of the payload
-    Serial.print(F(" bytes : "));
-    Serial.println(*receive); // print the payload's value
-
-    radio.openWritingPipe(PlaneAdress);
     radio.stopListening();
+    delay(5);
 
-    delay(100);
-    
-
-    bool report = radio.write(&receive, sizeof(receive));
-
-    if(report){
-      Serial.println("ponged") ;
-    }
-    else{
-      Serial.println("could not send pong back");
+    sendStruct.convert(send);
+    bool success = radio.write(&send, sizeof(send));
+    if (success) {
+      Serial.println(F("Pong sent!"));
+    } else {
+      Serial.println(F("Failed to send pong"));
     }
 
-    radio.openReadingPipe(1, GroundAdress); // using pipe 1
+    delay(5);
     radio.startListening();
   }
 
-  mpu6050.update();
+  sendStruct.update(mpu6050);
 
-  if(timer < millis()){
-    timer = millis() + 2000;
-
-    Serial.println("---");
-    Serial.print("angle X :");
-    Serial.println(mpu6050.getAngleX());
-    Serial.print("angle Y :");
-    Serial.println(mpu6050.getAngleY());
-    Serial.print("angle Z :");
-    Serial.println(mpu6050.getAngleZ());
-    Serial.println("---");
-  }
-
-} // loop
+  
+}

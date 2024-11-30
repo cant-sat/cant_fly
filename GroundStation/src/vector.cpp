@@ -3,6 +3,11 @@ struct Vector2{
     float y;
 };
 
+struct SVector2{
+    short x;
+    short y;
+};
+
 struct Vector3{
     float x;
     float y;
