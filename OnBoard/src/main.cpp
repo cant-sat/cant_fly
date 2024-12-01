@@ -12,7 +12,7 @@ MPU6050 mpu6050(Wire);
 RF24 radio(CE_PIN, CSN_PIN);
 
 uint8_t send[24] = {'a', 's', 'd', 'f', 'g', 'h', 'j', 'k'};
-uint8_t receive[4];
+uint8_t receive[5];
 
 uint8_t PlaneAdress[6] = "Plane";
 uint8_t GroundAdress[6] = "GStat";
@@ -52,18 +52,24 @@ void loop() {
   uint8_t pipe;
   if (radio.available(&pipe)) {
     radio.read(&receive, sizeof(receive));
-    Serial.println(F("Received: "));
-    for (unsigned int i = 0; i < sizeof(receive); i += 2) {
-      short value;
-      if(i == 0){
-        receiveStruct.stick.x = value;
-      }
-      else if(i == 2){
-        receiveStruct.stick.y = value;
-      }
-      memcpy(&value, &receive[i], sizeof(short));
-      Serial.println(value);
-    }
+    //Serial.println(F("Received: "));
+    // for (unsigned int i = 0; i < sizeof(receive); i += 2) {
+    //   short value;
+    //   if(i == 0){
+    //     receiveStruct.stick.x = value;
+    //   }
+    //   else if(i == 2){
+    //     receiveStruct.stick.y = value;
+    //   }
+    //   memcpy(&value, &receive[i], sizeof(short));
+    //   Serial.println(value);
+    // }
+
+    receiveStruct.parse(receive);
+
+    Serial.println(receiveStruct.stick.x);
+    Serial.println(receiveStruct.stick.y);
+
 
     radio.stopListening();
     delay(5);
@@ -71,7 +77,7 @@ void loop() {
     sendStruct.convert(send);
     bool success = radio.write(&send, sizeof(send));
     if (success) {
-      Serial.println(F("Pong sent!"));
+      // Serial.println(F("Pong sent!"));
     } else {
       Serial.println(F("Failed to send pong"));
     }
