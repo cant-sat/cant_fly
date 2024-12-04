@@ -6,8 +6,8 @@
 
 MPU6050 mpu6050(Wire);
 
-#define CE_PIN D4
-#define CSN_PIN D3
+#define CE_PIN 7
+#define CSN_PIN 8
 
 RF24 radio(CE_PIN, CSN_PIN);
 

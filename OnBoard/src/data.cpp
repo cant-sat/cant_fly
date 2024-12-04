@@ -1,5 +1,5 @@
 #include "vector.h"
-#include "cstring"
+
 
 #include "stdio.h"
 #include "MPU6050_tockn.h"
