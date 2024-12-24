@@ -61,7 +61,7 @@ allPings += 1;
   bool success = radio.write(&send, sizeof(send));
   if (success)
   {
-    digitalWrite(DEBUG_PIN, HIGH);
+    
     //Serial.println(F("Sent ping"));
 
     radio.startListening();
@@ -85,6 +85,7 @@ allPings += 1;
       //   Serial.println(value); // Print the float value
       // }
       //Serial.println();
+      digitalWrite(DEBUG_PIN, HIGH);
     }
     else
     {
@@ -109,5 +110,5 @@ allPings += 1;
   Serial.print((100 * failedPings/allPings));
   Serial.println("%");
 
-  delay(50);
+
 }

@@ -3,6 +3,7 @@
 #include "RF24.h"
 
 #include "data.cpp"
+#include "servo.h"
 
 MPU6050 mpu6050(Wire);
 
@@ -26,6 +27,8 @@ ToReceive receiveStruct;
 void setup() {
   Serial.begin(9600);
 
+  delay(500);
+
   while (!radio.begin()) {
     Serial.println(F("Radio hardware is not responding!"));
     delay(1000);
@@ -37,13 +40,21 @@ void setup() {
 
   radio.setPayloadSize(24);
 
+  
   radio.openWritingPipe(PlaneAdress);
   radio.openReadingPipe(1, GroundAdress);
   radio.startListening();
 
   Wire.begin();
+
   mpu6050.begin();
   mpu6050.calcGyroOffsets(true);
+
+
+
+  AddPin(3, 20, 90, forward, forward);
+  AddPin(4, 20, 90, reverse, reverse);
+  AddPin(5, 20, 90, forward, none);
 }
 
 unsigned long timer = 0;
@@ -70,6 +81,8 @@ void loop() {
     Serial.println(receiveStruct.stick.x);
     Serial.println(receiveStruct.stick.y);
 
+    UpdatePins(receiveStruct.stick);
+    timer = millis() + 1000; 
 
     radio.stopListening();
     delay(5);
@@ -86,7 +99,11 @@ void loop() {
     radio.startListening();
   }
 
-  sendStruct.update(mpu6050);
+  if(millis() >= timer){
+    receiveStruct.stick = NULLVECTOR;
+  }
 
+  sendStruct.update(mpu6050);
+  UpdatePins(receiveStruct.stick);
   
 }

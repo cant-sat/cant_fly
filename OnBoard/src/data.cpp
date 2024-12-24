@@ -41,7 +41,7 @@ struct ToSend{
 
 struct ToReceive{
     SVector2 rawStick;
-    Vector2 stick;
+    Vector2 stick = NULLVECTOR;
 
     Vector2 midPoint = NULLVECTOR;
 
