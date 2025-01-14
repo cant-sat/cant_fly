@@ -1,13 +1,10 @@
 #include "RF24.h"
 #include "data.cpp"
 
-#define CE_PIN 7
-#define CSN_PIN 8
+#define CE_PIN D4
+#define CSN_PIN D2
 
-
-
-
-#define DEBUG_PIN 2
+#define DEBUG_PIN D0
 
 RF24 radio(CE_PIN, CSN_PIN);
 
@@ -43,8 +40,9 @@ void setup()
   radio.openWritingPipe(GroundAdress);
   radio.openReadingPipe(1, PlaneAdress);
 
-  pinMode(X_PIN, INPUT);
-  pinMode(Y_PIN, INPUT);
+  pinMode(JOYSTICK_READ_PIN, INPUT);
+  pinMode(JOYSTICK_X_PIN, OUTPUT);
+  pinMode(JOYSTICK_Y_PIN, OUTPUT);
   pinMode(SWITCH_PIN, INPUT_PULLUP);
   pinMode(DEBUG_PIN, OUTPUT);
 }
@@ -101,7 +99,8 @@ allPings += 1;
     failedPings += 1;
   }
 
-  Serial.print("Total Packages: ");
+  if(false){
+    Serial.print("Total Packages: ");
   Serial.print(allPings);
   Serial.print("   Lost Packages: ");
   Serial.println(failedPings);
@@ -109,6 +108,7 @@ allPings += 1;
   Serial.print("Package loss: ");
   Serial.print((100 * failedPings/allPings));
   Serial.println("%");
+  }
 
-
+  delay(20);
 }

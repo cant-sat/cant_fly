@@ -50,7 +50,6 @@ struct ToReceive{
         memcpy(&rawStick.y, &par[2], sizeof(short));
 
         
-        
 
         if(format){
             if(midPoint == NULLVECTOR || par[4] != 0){

@@ -31,6 +31,6 @@ struct Vector3 {
     Vector3(float x = 0, float y = 0, float z = 0);
 };
 
-float FormatAxis(float cur, float mid, float min = 30, float max = 1023);
+float FormatAxis(float cur, float mid, float min = 510, float max = 920);
 
 #endif // VECTOR_H

@@ -27,8 +27,6 @@ ToReceive receiveStruct;
 void setup() {
   Serial.begin(9600);
 
-  delay(500);
-
   while (!radio.begin()) {
     Serial.println(F("Radio hardware is not responding!"));
     delay(1000);
@@ -51,15 +49,16 @@ void setup() {
   mpu6050.calcGyroOffsets(true);
 
 
-
-  AddPin(3, 20, 90, forward, forward);
-  AddPin(4, 20, 90, reverse, reverse);
-  AddPin(5, 20, 90, forward, none);
+  
+  //AddPin(3, 20, 90, forward, forward);
+  //AddPin(4, 20, 90, reverse, reverse);
+  //AddPin(5, 20, 90, forward, none);
 }
 
 unsigned long timer = 0;
 
 void loop() {
+  radio.startListening();
   uint8_t pipe;
   if (radio.available(&pipe)) {
     radio.read(&receive, sizeof(receive));
@@ -78,14 +77,13 @@ void loop() {
 
     receiveStruct.parse(receive);
 
-    Serial.println(receiveStruct.stick.x);
-    Serial.println(receiveStruct.stick.y);
+    //Serial.println(receiveStruct.stick.x);
+    //Serial.println(receiveStruct.stick.y);
 
     UpdatePins(receiveStruct.stick);
     timer = millis() + 1000; 
 
     radio.stopListening();
-    delay(5);
 
     sendStruct.convert(send);
     bool success = radio.write(&send, sizeof(send));
@@ -104,6 +102,8 @@ void loop() {
   }
 
   sendStruct.update(mpu6050);
-  UpdatePins(receiveStruct.stick);
+  //UpdatePins(receiveStruct.stick);
+
+  delay(20);
   
 }

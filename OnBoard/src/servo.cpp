@@ -86,7 +86,7 @@ void UpdatePins(Vector2 stick) {
             
             servoPins[i].updateServo(stick);
             
-            delay(15);
+
         }
     }
 }
@@ -105,5 +105,5 @@ void AddPin(int pin, int range, int mid, responses XAxis, responses YAxis) {
         return;
     }
 
-    servoPins[i].initiate(pin, range, range, XAxis, YAxis);
+    servoPins[i].initiate(pin, range, mid, XAxis, YAxis);
 }

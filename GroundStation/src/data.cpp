@@ -2,9 +2,10 @@
 #include "stdio.h"
 #include "Arduino.h"
 
-#define X_PIN A1
-#define Y_PIN A0
-#define SWITCH_PIN 3
+#define JOYSTICK_X_PIN D3
+#define JOYSTICK_Y_PIN D8
+#define JOYSTICK_READ_PIN A0
+#define SWITCH_PIN D1
 
 struct ToReceive{
     Vector3 angle;
@@ -18,8 +19,16 @@ struct ToSend{
     uint8_t Switch;
 
     void update(){
-        stick.x = analogRead(X_PIN);
-        stick.y = analogRead(Y_PIN);
+        digitalWrite(JOYSTICK_Y_PIN,  LOW);
+        digitalWrite(JOYSTICK_X_PIN,  HIGH);
+        stick.x = analogRead(JOYSTICK_READ_PIN);
+
+        digitalWrite(JOYSTICK_Y_PIN,  HIGH);
+        digitalWrite(JOYSTICK_X_PIN,  LOW);
+        stick.y = analogRead(JOYSTICK_READ_PIN);
+
+        digitalWrite(JOYSTICK_Y_PIN,  LOW);
+        digitalWrite(JOYSTICK_X_PIN,  LOW);
 
         Switch = digitalRead(SWITCH_PIN) == 0 ? 1 : 0;
     };
