@@ -32,8 +32,8 @@ struct ToSend{
         memcpy(&ret[8], &angle.z, sizeof(float));
 
         // Serialize `acceleration`
-        memcpy(&ret[12], &acceleration.x, sizeof( float));
-        memcpy(&ret[16], &acceleration.y, sizeof( float));
+        memcpy(&ret[12], &acceleration.x, sizeof(float));
+        memcpy(&ret[16], &acceleration.y, sizeof(float));
         memcpy(&ret[20], &acceleration.z, sizeof(float));
     };
 };

@@ -11,6 +11,17 @@ struct ToReceive{
     Vector3 angle;
 
     Vector3 acceleration;
+
+    void parse(uint8_t* par, bool format = true){
+        memcpy(&angle.x, &par[0], sizeof(float));
+        memcpy(&angle.y, &par[4], sizeof(float));
+        memcpy(&angle.z, &par[8], sizeof(float));
+
+        memcpy(&acceleration.x, &par[12], sizeof(float));
+        memcpy(&acceleration.y, &par[16], sizeof(float));
+        memcpy(&acceleration.z, &par[20], sizeof(float));
+        
+    };
 };
 
 
