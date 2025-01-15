@@ -11,6 +11,7 @@ struct ToSend{
     Vector3 angle;
 
     Vector3 acceleration;
+    float temp;
 
     void update(MPU6050 mpu6050){
         mpu6050.update();
@@ -23,9 +24,24 @@ struct ToSend{
         acceleration.x = mpu6050.getAccX();
         acceleration.y = mpu6050.getAccY();
         acceleration.z = mpu6050.getAccZ();
+
+       temp = mpu6050.getTemp();
     };
 
-    void convert(uint8_t* ret){
+    void convert(uint8_t* ret, MPU6050 mpu6050){
+            
+        mpu6050.update();
+
+        angle.x = mpu6050.getAngleX();
+        angle.y = mpu6050.getAngleY();
+        angle.z = mpu6050.getAngleZ();
+
+
+        acceleration.x = mpu6050.getAccX();
+        acceleration.y = mpu6050.getAccY();
+        acceleration.z = mpu6050.getAccZ();
+
+       temp = mpu6050.getTemp();
         // Serialize `angle`
         memcpy(&ret[0], &angle.x, sizeof(float));
         memcpy(&ret[4], &angle.y, sizeof(float));
@@ -35,6 +51,8 @@ struct ToSend{
         memcpy(&ret[12], &acceleration.x, sizeof(float));
         memcpy(&ret[16], &acceleration.y, sizeof(float));
         memcpy(&ret[20], &acceleration.z, sizeof(float));
+
+        memcpy(&ret[24], &temp, sizeof(float));
     };
 };
 

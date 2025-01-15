@@ -7,4 +7,7 @@ export default defineConfig({
   ssr: {
     noExternal: ['three', 'troika-three-text'],
   },
+  build : {
+    outDir : "./../Server/files"
+  }
 })

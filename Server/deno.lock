@@ -1,0 +1,14 @@
+{
+  "version": "4",
+  "redirects": {
+    "https://deno.land/x/local_ip/mod.ts": "https://deno.land/x/local_ip@0.0.3/mod.ts"
+  },
+  "remote": {
+    "https://deno.land/x/local_ip@0.0.3/mod.ts": "8c5ebbca332af704f39cf83aac68cceff9f2afe1dc42e8a10dfe53bf8d347ae9"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@1"
+    ]
+  }
+}

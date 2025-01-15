@@ -12,7 +12,7 @@ MPU6050 mpu6050(Wire);
 
 RF24 radio(CE_PIN, CSN_PIN);
 
-uint8_t send[24] = {'a', 's', 'd', 'f', 'g', 'h', 'j', 'k'};
+uint8_t send[28] = {'a', 's', 'd', 'f', 'g', 'h', 'j', 'k'};
 uint8_t receive[5];
 
 uint8_t PlaneAdress[6] = "Plane";
@@ -36,7 +36,7 @@ void setup() {
   radio.setChannel(108);
   radio.setDataRate(RF24_250KBPS);
 
-  radio.setPayloadSize(24);
+  radio.setPayloadSize(28);
 
   
   radio.openWritingPipe(PlaneAdress);
@@ -85,10 +85,12 @@ void loop() {
 
     radio.stopListening();
 
-    sendStruct.convert(send);
+    sendStruct.convert(send, mpu6050);
     bool success = radio.write(&send, sizeof(send));
     if (success) {
-      // Serial.println(F("Pong sent!"));
+      Serial.println(sendStruct.temp);
+      Serial.println(sendStruct.angle.x);
+      Serial.println(sendStruct.acceleration.x);
     } else {
       Serial.println(F("Failed to send pong"));
     }
@@ -100,8 +102,6 @@ void loop() {
   if(millis() >= timer){
     receiveStruct.stick = NULLVECTOR;
   }
-
-  sendStruct.update(mpu6050);
   //UpdatePins(receiveStruct.stick);
 
   delay(20);
