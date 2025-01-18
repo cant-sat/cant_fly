@@ -4,7 +4,6 @@
 #include <ESP8266WiFi.h>
 #include <WebSocketsClient.h>
 
-
 #define CE_PIN D4
 #define CSN_PIN D2
 
@@ -40,28 +39,23 @@ const char *token = "token";
 // Create a WebSocket client object
 WebSocketsClient webSocket;
 
-void webSocketEvent(WStype_t type, uint8_t *payload, size_t length)
-{
-  switch (type)
-  {
-  case WStype_DISCONNECTED:
-    Serial.println("WebSocket Disconnected");
-    break;
-  case WStype_CONNECTED:
-    Serial.println("WebSocket Connected");
-    webSocket.sendTXT(token);
-    // Send a message when connected
-    break;
-  case WStype_TEXT:
-    Serial.println("WebSocket message received");
-    Serial.println((char *)payload);
-    break;
-  case WStype_BIN:
-    Serial.println("WebSocket binary message received");
-    break;
-  case WStype_ERROR:
-    Serial.println("Error");
-    break;
+void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
+  switch (type) {
+    case WStype_DISCONNECTED:
+      Serial.println("WebSocket Disconnected");
+      Serial.print("Wi-Fi status: ");
+      Serial.println(WiFi.status());
+      break;
+    case WStype_CONNECTED:
+      Serial.println("WebSocket Connected");
+      webSocket.sendTXT(token);
+      break;
+    case WStype_ERROR:
+      Serial.println("WebSocket Error");
+      break;
+    case WStype_BIN:
+    case WStype_TEXT:
+      break;
   }
 }
 
@@ -89,6 +83,7 @@ void setup()
   webSocket.begin(websockets_server_host, websockets_server_port, websockets_server_path);
   webSocket.onEvent(webSocketEvent);
 
+
   radio.setPALevel(RF24_PA_LOW);
   radio.setChannel(108);
   radio.setDataRate(RF24_250KBPS);
@@ -107,6 +102,8 @@ void setup()
 
 void loop()
 {
+  webSocket.loop();
+
   radio.stopListening();
   delay(5);
 
@@ -134,9 +131,10 @@ void loop()
       receiveStruct.parse(receive);
       digitalWrite(DEBUG_PIN, HIGH);
 
-      if(webSocket.isConnected() || true){
-                String json = receiveStruct.stringify();
-                Serial.println(json);
+      if (webSocket.isConnected() || true)
+      {
+        String json = receiveStruct.stringify();
+        Serial.println(json);
         webSocket.sendTXT(json);
       }
     }

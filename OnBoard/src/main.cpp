@@ -77,8 +77,8 @@ void loop() {
 
     receiveStruct.parse(receive);
 
-    //Serial.println(receiveStruct.stick.x);
-    //Serial.println(receiveStruct.stick.y);
+    Serial.println(receiveStruct.stick.x);
+    Serial.println(receiveStruct.stick.y);
 
     UpdatePins(receiveStruct.stick);
     timer = millis() + 1000; 
@@ -88,9 +88,7 @@ void loop() {
     sendStruct.convert(send, mpu6050);
     bool success = radio.write(&send, sizeof(send));
     if (success) {
-      Serial.println(sendStruct.temp);
-      Serial.println(sendStruct.angle.x);
-      Serial.println(sendStruct.acceleration.x);
+
     } else {
       Serial.println(F("Failed to send pong"));
     }

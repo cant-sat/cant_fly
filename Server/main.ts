@@ -82,29 +82,40 @@ Deno.serve(
   { port: 443, hostname: localIp },
   (req) => {
 
+    
     if (req.headers.get("upgrade") != "websocket") {
       return new Response(null, { status: 501 });
     }
 
     const { socket, response } = Deno.upgradeWebSocket(req);
 
-    console.log("asd")
-
     socket.addEventListener("open", () => {
       sockets.push(socket)
 
-      socket.send(JSON.stringify(data))
+      setTimeout(()=>{
+        if(authenticatedSocket != socket && socket.readyState == socket.OPEN){
+          socket.send(JSON.stringify(data))
+          
+        }
+      }, 1000)
     });
 
     socket.addEventListener("message", (event) => {
+      if(authenticatedSocket && authenticatedSocket.readyState != authenticatedSocket.OPEN){
+        authenticatedSocket = null
+      }
+      console.log(event.data)
+
       if (authenticatedSocket == null && event.data == token) {
         authenticatedSocket = socket
+        console.log("authenticated websocket")
       }
       else if (authenticatedSocket == null) {
         socket.close()
+        console.log("token failed")
       } else if (authenticatedSocket == socket) {
         let t : {temp : number, angle : number[], acc : number[], timestamp: number}
-
+        
         try {
           t = JSON.parse(event.data)
 
@@ -118,6 +129,7 @@ Deno.serve(
           socket.close()
         }
 
+        
         sockets.forEach((tSocket, i) => {
           if (tSocket != authenticatedSocket) {
             if (tSocket.readyState==tSocket.OPEN) {
@@ -128,9 +140,13 @@ Deno.serve(
             }
           }
         })
+        console.log("sent data to "+sockets.length + " clients")
 
 
       } else {
+
+
+        console.log("authenticated socket exists and this one is not it")
         socket.close()
       }
     });
@@ -138,7 +154,7 @@ Deno.serve(
     socket.addEventListener("close", (event) => {
       if (authenticatedSocket == socket) {
         authenticatedSocket == null
-
+        console.log("unauthenticated websocket")
       }
       const index = sockets.indexOf(socket, 0);
       if (index > -1) {
@@ -151,7 +167,7 @@ Deno.serve(
     socket.addEventListener("error", (event) => {
       if (authenticatedSocket == socket) {
         authenticatedSocket == null
-        socket.close()
+        
       }
       const index = sockets.indexOf(socket, 0);
       if (index > -1) {
